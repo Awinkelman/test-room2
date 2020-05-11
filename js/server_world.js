@@ -1,34 +1,33 @@
-
 // store all players
 var players = [];
 
-function Player(){
+function Player() {
 
     this.playerId = players.length;
     this.x = 1;
     this.y = 0;
-    this.z = 1;
+    this.z = 5;
     this.r_x = 0;
     this.r_y = 0;
     this.r_z = 0;
     this.sizeX = 1;
     this.sizeY = 1;
     this.sizeZ = 1;
-    this.speed = 0.1;
+    this.speed = 0.3;
     this.turnSpeed = 0.03;
 
 }
 
-var addPlayer = function(id){
+var addPlayer = function (id) {
 
     var player = new Player();
     player.playerId = id;
-    players.push( player );
+    players.push(player);
 
     return player;
 };
 
-var removePlayer = function(player){
+var removePlayer = function (player) {
 
     var index = players.indexOf(player);
 
@@ -37,7 +36,7 @@ var removePlayer = function(player){
     }
 };
 
-var updatePlayerData = function(data){
+var updatePlayerData = function (data) {
     var player = playerForId(data.playerId);
     player.x = data.x;
     player.y = data.y;
@@ -49,11 +48,11 @@ var updatePlayerData = function(data){
     return player;
 };
 
-var playerForId = function(id){
+var playerForId = function (id) {
 
     var player;
-    for (var i = 0; i < players.length; i++){
-        if (players[i].playerId === id){
+    for (var i = 0; i < players.length; i++) {
+        if (players[i].playerId === id) {
 
             player = players[i];
             break;

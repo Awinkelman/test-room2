@@ -1,6 +1,9 @@
-
-
-var container, scene, camera, renderer, raycaster, objects = [];
+var container,
+    scene,
+    camera,
+    renderer,
+    raycaster,
+    objects = [];
 var keyState = {};
 var sphere;
 
@@ -8,30 +11,32 @@ var player, playerId, moveSpeed, turnSpeed;
 
 var playerData;
 
-var otherPlayers = [], otherPlayersId = [];
+var otherPlayers = [],
+    otherPlayersId = [];
 
 var loadWorld = function () {
-
     init();
     animate();
 
     function init() {
-
         //Setup------------------------------------------
         container = document.getElementById('container');
 
         scene = new THREE.Scene();
-        scene.position.x = 1
-        scene.position.y = -5
-        scene.position.z = 4
+        scene.position.x = 1;
+        scene.position.y = -5;
+        scene.position.z = 4;
 
-        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
-        camera.position.y = 7
+        camera = new THREE.PerspectiveCamera(
+            45,
+            window.innerWidth / window.innerHeight,
+            1,
+            1000
+        );
+        camera.position.y = 3;
         camera.position.z = 20;
         camera.position.x = 0;
-        camera.lookAt(scene.position)
-
-
+        camera.lookAt(scene.position);
 
         const loader = new THREE.TextureLoader();
         const bgTexture = loader.load('background.png');
@@ -73,9 +78,7 @@ var loadWorld = function () {
         render();
     }
     function render() {
-
         if (player) {
-
             // updateCameraPosition();
 
             checkKeyStates();
@@ -93,52 +96,41 @@ var loadWorld = function () {
         if (intersects.length > 0) {
             //If object is intersected by mouse pointer, do something
             if (intersects[0].object == sphere) {
-                alert("This is a sphere!");
+                alert('This is a sphere!');
             }
         }
     }
-    function onMouseDown() {
-
-    }
-    function onMouseUp() {
-
-    }
-    function onMouseMove() {
-
-    }
-    function onMouseOut() {
-
-    }
+    function onMouseDown() { }
+    function onMouseUp() { }
+    function onMouseMove() { }
+    function onMouseOut() { }
     function onKeyDown(event) {
-
         //event = event || window.event;
 
         keyState[event.keyCode || event.which] = true;
-
     }
 
     function onKeyUp(event) {
-
         //event = event || window.event;
 
         keyState[event.keyCode || event.which] = false;
-
     }
     function onWindowResize() {
-
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
 
         renderer.setSize(window.innerWidth, window.innerHeight);
-
     }
     function calculateIntersects(event) {
-
         //Determine objects intersected by raycaster
         event.preventDefault();
 
         var vector = new THREE.Vector3();
-        vector.set((event.clientX / window.innerWidth) * 2 - 1, - (event.clientY / window.innerHeight) * 2 + 1, 0.5);
+        vector.set(
+            (event.clientX / window.innerWidth) * 2 - 1,
+            -(event.clientY / window.innerHeight) * 2 + 1,
+            0.5
+        );
         vector.unproject(camera);
 
         raycaster.ray.set(camera.position, vector.sub(camera.position).normalize());
@@ -147,24 +139,26 @@ var loadWorld = function () {
 
         return intersects;
     }
-
 };
 
 var createPlayer = function (data) {
-
     playerData = data;
 
-
-    var cube_geometry = new THREE.BoxGeometry(data.sizeX * 2, data.sizeY * 4, data.sizeZ * 2);
+    var cube_geometry = new THREE.BoxGeometry(
+        data.sizeX * 2,
+        data.sizeY * 4,
+        data.sizeZ * 2
+    );
     const iconLoader = new THREE.TextureLoader();
     const cube_material = [
         new THREE.MeshBasicMaterial({ color: 0x69bdd2 }),
         new THREE.MeshBasicMaterial({ color: 0x69bdd2 }),
         new THREE.MeshBasicMaterial({ color: 0x407294 }),
         new THREE.MeshBasicMaterial({ color: 0x69bdd2 }),
+        new THREE.MeshBasicMaterial({ map: iconLoader.load('pietro.jpg') }), //front of object avatar
+
         new THREE.MeshBasicMaterial({ color: 0x407294 }),
-        new THREE.MeshBasicMaterial({ map: iconLoader.load('pietro.jpg') }),//front of object avatar
-    ]
+    ];
     player = new THREE.Mesh(cube_geometry, cube_material);
 
     player.rotation.set(0, 0, 0);
@@ -194,7 +188,6 @@ var createPlayer = function (data) {
 // };
 
 var updatePlayerPosition = function (data) {
-
     var somePlayer = playerForId(data.playerId);
 
     somePlayer.position.x = data.x;
@@ -204,7 +197,6 @@ var updatePlayerPosition = function (data) {
     somePlayer.rotation.x = data.r_x;
     somePlayer.rotation.y = data.r_y;
     somePlayer.rotation.z = data.r_z;
-
 };
 
 var updatePlayerData = function () {
@@ -215,64 +207,68 @@ var updatePlayerData = function () {
     playerData.r_x = player.rotation.x;
     playerData.r_y = player.rotation.y;
     playerData.r_z = player.rotation.z;
-
 };
 var checkKeyStates = function () {
-
-    if (keyState[38] || keyState[87]) {
-        // up arrow or 'w' - move forward
+    if ((keyState[38] || keyState[87]) && player.position.z > -23) {
+        //up arrow or 'w' - move forward
         player.position.x -= moveSpeed * Math.sin(player.rotation.y);
         player.position.z -= moveSpeed * Math.cos(player.rotation.y);
         updatePlayerData();
         socket.emit('updatePosition', playerData);
     }
-    if (keyState[40] || keyState[83]) {
-        // down arrow or 's' - move backward
+
+    if ((keyState[40] || keyState[83]) && player.position.z < 5) {
+        //down arrow or 's' - move backward
         player.position.x += moveSpeed * Math.sin(player.rotation.y);
         player.position.z += moveSpeed * Math.cos(player.rotation.y);
         updatePlayerData();
         socket.emit('updatePosition', playerData);
     }
-    if (keyState[37] || keyState[65]) {
-        // left arrow or 'a' - rotate left
-        player.rotation.y += turnSpeed;
-        updatePlayerData();
-        socket.emit('updatePosition', playerData);
-    }
-    if (keyState[39] || keyState[68]) {
-        // right arrow or 'd' - rotate right
-        player.rotation.y -= turnSpeed;
-        updatePlayerData();
-        socket.emit('updatePosition', playerData);
-    }
-    if (keyState[81]) {
-        // 'q' - strafe left
+
+    if ((keyState[37] || keyState[65]) && player.position.x > -14) {
+        // 'left arrow' or 'a' - move left
         player.position.x -= moveSpeed * Math.cos(player.rotation.y);
         player.position.z += moveSpeed * Math.sin(player.rotation.y);
         updatePlayerData();
         socket.emit('updatePosition', playerData);
     }
-    if (keyState[69]) {
-        // 'e' - strage right
+    if ((keyState[39] || keyState[68]) && player.position.x < 17) {
+        // 'right arrow' or 'd'- move right
         player.position.x += moveSpeed * Math.cos(player.rotation.y);
         player.position.z -= moveSpeed * Math.sin(player.rotation.y);
         updatePlayerData();
         socket.emit('updatePosition', playerData);
     }
-
+    // if (keyState[65]) {
+    //   // a  - rotate left
+    //   player.rotation.y += turnSpeed;
+    //   updatePlayerData();
+    //   socket.emit('updatePosition', playerData);
+    // }
+    // if (keyState[68]) {
+    //   // d  - rotate right
+    //   player.rotation.y -= turnSpeed;
+    //   updatePlayerData();
+    //   socket.emit('updatePosition', playerData);
+    // }
 };
 
 var addOtherPlayer = function (data) {
-    var cube_geometry = new THREE.BoxGeometry(data.sizeX * 2, data.sizeY * 4, data.sizeZ * 2);
+    var cube_geometry = new THREE.BoxGeometry(
+        data.sizeX * 2,
+        data.sizeY * 4,
+        data.sizeZ * 2
+    );
     const iconLoader = new THREE.TextureLoader();
     const cube_material = [
         new THREE.MeshBasicMaterial({ color: 0x69bdd2 }),
         new THREE.MeshBasicMaterial({ color: 0x69bdd2 }),
         new THREE.MeshBasicMaterial({ color: 0x407294 }),
         new THREE.MeshBasicMaterial({ color: 0x69bdd2 }),
+        new THREE.MeshBasicMaterial({ map: iconLoader.load('pietro.jpg') }), //front of object avatar
+
         new THREE.MeshBasicMaterial({ color: 0x407294 }),
-        new THREE.MeshBasicMaterial({ map: iconLoader.load('pietro.jpg') }),//front of object avatar
-    ]
+    ];
     var otherPlayer = new THREE.Mesh(cube_geometry, cube_material);
 
     otherPlayer.position.x = data.x;
@@ -283,13 +279,10 @@ var addOtherPlayer = function (data) {
     otherPlayers.push(otherPlayer);
     objects.push(otherPlayer);
     scene.add(otherPlayer);
-
 };
 
 var removeOtherPlayer = function (data) {
-
     scene.remove(playerForId(data.playerId));
-
 };
 
 var playerForId = function (id) {
